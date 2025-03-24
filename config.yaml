@@ -1,0 +1,14 @@
+credentials:
+  username: username
+  password: password
+
+urls:
+  login_url: https://www.linkedin.com/feed/
+  fetch_url: https://www.linkedin.com/login
+
+settings:
+  timeout: 30
+
+topics:
+  - Artificial Intelligence
+  - Business Intelligence
