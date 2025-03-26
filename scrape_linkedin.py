@@ -167,7 +167,7 @@ def call_chatgpt_api(post_text):
     return post_text
 
 def call_ollama_api(post_text):
-    res = Ollama_check_topic.check_topic(post  =post_text, topics=["AI", "ENGINEERING", "BUISNESS", "LEADERSHIP", "MANAGMENT"])
+    res = Ollama_check_topic.check_topic(post  =post_text, topics=APPROVED_TOPICS)
     print(res)
     return "True" in res
 
