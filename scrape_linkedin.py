@@ -222,26 +222,46 @@ def generate_html_alternative(approved_posts, driver):
     html_content = f"<html><head><title>Approved Posts - {today}</title></head><body>"
     elements = driver.find_elements(By.CLASS_NAME,'scaffold-finite-scroll__content')
     elements = elements[0].find_elements(By.XPATH, "//*[@data-finite-scroll-hotkey-item]")
+    wait = WebDriverWait(driver, 10)
     for index in approved_posts:
         response = elements[index]
+        #clicks 3 dots button
         response1 = response.find_elements(By.CLASS_NAME, 'feed-shared-control-menu')
         response1 = response1[0].find_elements(By.XPATH, './div[1]/button[1]')
         driver.execute_script("arguments[0].click();", response1[0])
-        time.sleep(1)
+        #time.sleep(1)
+
+        #clicks embed code button 
+
         response2 = response.find_elements(By.CLASS_NAME, 'feed-shared-control-menu')
-        response2 = response2[0].find_elements(By.XPATH, './div[1]/div[1]/div[1]/ul[1]/li[3]/div[1]')
-        driver.execute_script("arguments[0].click();", response2[0])
-        time.sleep(1)
-        response3 = driver.find_elements(By.ID,'feed-components-shared-embed-modal__snippet')
-        if(len(response3) > 0):
-            link = response3[0].get_attribute("value")
+        #wait until the dropdown menu shows
+        response2 = WebDriverWait(response2[0], 10).until(
+        lambda d: response2[0].find_element(By.XPATH, './div[1]/div[1]/div[1]/ul[1]/li[3]/div[1]')
+        )
+        driver.execute_script("arguments[0].click();", response2)
+
+        #copies link of the embeding then closes the poppup
+        esc = WebDriverWait(driver, 3).until(
+        EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Dismiss']"))
+        )
+        check = driver.find_elements(By.ID, 'embed-modal-label')
+        if not check:
+            esc.click()
+            continue
+        response3 = driver.find_element(By.ID,'feed-components-shared-embed-modal__snippet')
+        WebDriverWait(driver, 10).until(
+        lambda d: response3.get_attribute("value").strip() != ""
+        )
+
+        #if we can, copy the embedding code
+        if response3:
+            link = response3.get_attribute("value")
             html_content+=link
             print(link)
-        time.sleep(1)
-        esc = driver.find_element(By.XPATH, "//*[@aria-label='Dismiss']")
+
+        #close poppup
         if esc:
             esc.click()
-        time.sleep(1)
     html_content+= "</body></html>"
     with open(f"approved_posts_{today}.html", 'w') as file:
         file.write(html_content)
