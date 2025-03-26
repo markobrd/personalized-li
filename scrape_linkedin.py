@@ -14,8 +14,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
-import openai
 import yaml
+import Ollama_check_topic
 
 # Load the config
 with open('config.yaml') as config_file:
@@ -32,8 +32,8 @@ APPROVED_TOPICS = config['topics']  # Replace with your approved topics
 
 def setup_driver():
     chrome_options = Options()
-    user_profile_path = '/Users/markoj/Library/Application Support/Google/Chrome for Testing/Default/'
-    # chrome_options.add_argument("--headless")  # Run in headless mode if you don't need the UI
+    user_profile_path = 'C:/Users/Uros/AppData/Local/Google/Chrome/User Data/Default'
+    #chrome_options.add_argument("--headless")  # Run in headless mode if you don't need the UI
     chrome_options.add_argument(f'user-data-dir={user_profile_path}')
     # service = Service(CHROMEDRIVER_PATH)
     # driver = webdriver.Chrome(service=service, options=chrome_options)
@@ -57,7 +57,7 @@ def login(driver):
     # Go to login page
     driver.get(LOGIN_URL)
     # Try to load cookies
-    load_cookies(driver)
+    if load_cookies(driver) : return
     # Login if needed (don't forget two step verification, if it's set up)
     if check_login_status(driver):
         username_field = driver.find_element(By.ID, "username")
@@ -78,7 +78,7 @@ def login(driver):
 def check_login_status(driver):
     return 'login' in driver.current_url
 
-def fetch_posts(url, headers):
+def fetch_posts(driver):
     """
     Fetch posts from a LinkedIn feed URL.
     
@@ -89,29 +89,37 @@ def fetch_posts(url, headers):
     Returns:
     - List of dictionaries containing post data.
     """
-    response = requests.get(url, headers=headers)
-    
+    #response = requests.get(url, headers=headers)
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(2)
+    driver.execute_script("window.scrollTo(0, 0);")
+
+    response = driver.find_elements(By.CLASS_NAME,'scaffold-finite-scroll__content')
     # Check if the response is successful
-    if response.status_code != 200:
+    """if response.status_code != 200:
         print(f"Failed to fetch posts: {response.status_code}")
         return []
-    
+    """
+
     # Wait for 30 seconds after fetching the page
-    time.sleep(30)
+    time.sleep(5)
     
     # Parse the HTML content
-    soup = BeautifulSoup(response.text, 'html.parser')
+    soup = BeautifulSoup(response[0].get_attribute('innerHTML'), 'html.parser')
     
     posts = []
     
     # Find the container holding the posts
-    feed_content = soup.find('div', class_='scaffold-finite-scroll__content')
+    feed_content = soup
     if not feed_content:
         print("Feed content not found.")
         return posts
     
     # Loop through each post element
-    for post_div in feed_content.find_all('div', class_='relative'):
+    for post_div in feed_content.select("[data-finite-scroll-hotkey-item]"):
         post_data = {}
         
         # Extract actor's information
@@ -150,21 +158,30 @@ def fetch_posts(url, headers):
     return posts
 
 def call_chatgpt_api(post_text):
-    response = openai.Completion.create(
+    """response = openai.Completion.create(
         model="text-davinci-003",
         prompt=f"Determine if the following post is on an approved topic: {post_text}",
         max_tokens=10
     )
-    return "approved" in response.choices[0].text.lower()
+    return "approved" in response.choices[0].text.lower()"""
+    return post_text
+
+def call_ollama_api(post_text):
+    res = Ollama_check_topic.check_topic(post  =post_text, topics=["AI", "ENGINEERING", "BUISNESS", "LEADERSHIP", "MANAGMENT"])
+    print(res)
+    return "True" in res
+
 
 def process_posts(posts):
     approved_posts = []
-    for post in posts:
-        if call_chatgpt_api(post['text']):
-            post['approved'] = True
-            approved_posts.append(post)
-        else:
-            post['approved'] = False
+    for i in range(len(posts)):
+        try:
+            #If the model is about given topics we save its post index so we can copy the embeding link later
+            print(posts[i]['post_text'])
+            if True or call_ollama_api(posts[i]['post_text']):
+                approved_posts.append(i)
+        except:
+            continue
     return approved_posts
 
 def save_to_json(posts):
@@ -200,6 +217,37 @@ def generate_html(approved_posts):
     with open(f"approved_posts_{today}.html", 'w') as file:
         file.write(html_content)
 
+def generate_html_alternative(approved_posts, driver):
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    html_content = f"<html><head><title>Approved Posts - {today}</title></head><body>"
+    elements = driver.find_elements(By.CLASS_NAME,'scaffold-finite-scroll__content')
+    elements = elements[0].find_elements(By.XPATH, "//*[@data-finite-scroll-hotkey-item]")
+    for index in approved_posts:
+        response = elements[index]
+        response1 = response.find_elements(By.CLASS_NAME, 'feed-shared-control-menu')
+        response1 = response1[0].find_elements(By.XPATH, './div[1]/button[1]')
+        driver.execute_script("arguments[0].click();", response1[0])
+        time.sleep(1)
+        response2 = response.find_elements(By.CLASS_NAME, 'feed-shared-control-menu')
+        response2 = response2[0].find_elements(By.XPATH, './div[1]/div[1]/div[1]/ul[1]/li[3]/div[1]')
+        driver.execute_script("arguments[0].click();", response2[0])
+        time.sleep(1)
+        response3 = driver.find_elements(By.ID,'feed-components-shared-embed-modal__snippet')
+        if(len(response3) > 0):
+            link = response3[0].get_attribute("value")
+            html_content+=link
+            print(link)
+        time.sleep(1)
+        esc = driver.find_element(By.XPATH, "//*[@aria-label='Dismiss']")
+        if esc:
+            esc.click()
+        time.sleep(1)
+    html_content+= "</body></html>"
+    with open(f"approved_posts_{today}.html", 'w') as file:
+        file.write(html_content)
+    print(html_content)
+    return True
+
 if __name__ == "__main__":
     driver = setup_driver()
     
@@ -207,12 +255,14 @@ if __name__ == "__main__":
         if not check_login_status(driver):
             login(driver)
         
-        time.sleep(10)
-        # posts = fetch_posts(driver)
-        # print(posts)
-        # approved_posts = process_posts(posts)
-        # new_posts = save_to_json(posts)
-        # generate_html(approved_posts)
+        time.sleep(2)
+        posts = fetch_posts(driver)
+        #print(posts)
+        approved_posts = process_posts(posts[:10])
+        print(approved_posts)
+        new_posts = save_to_json(posts)
+
+        generate_html_alternative(approved_posts, driver)
         
     finally:
         driver.quit()

@@ -39,7 +39,7 @@ def fetch_posts():
 def call_chatgpt_api(post_text):
     # Call OpenAI API to check if the topic is approved
     # Replace with actual API call and response handling
-    return post_text in APPROVED_TOPICS
+    return post_text
 
 def process_posts(posts):
     approved_posts = []
