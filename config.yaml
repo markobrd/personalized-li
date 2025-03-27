@@ -1,6 +1,6 @@
 credentials:
-  username: username
-  password: password
+  username: uki.mar@gmail.com
+  password: uip3EMAp@aeMA!&
 
 urls:
   login_url: https://www.linkedin.com/feed/
@@ -9,6 +9,4 @@ urls:
 settings:
   timeout: 30
 
-topics:
-  - Artificial Intelligence
-  - Business Intelligence
+topics: "Any topic"

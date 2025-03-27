@@ -16,6 +16,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
 import yaml
 import Ollama_check_topic
+from scrape_functions import *
 
 # Load the config
 with open('config.yaml') as config_file:
@@ -78,84 +79,6 @@ def login(driver):
 def check_login_status(driver):
     return 'login' in driver.current_url
 
-def fetch_posts(driver):
-    """
-    Fetch posts from a LinkedIn feed URL.
-    
-    Parameters:
-    - url (str): URL of the LinkedIn feed page.
-    - headers (dict): HTTP headers to include in the request.
-    
-    Returns:
-    - List of dictionaries containing post data.
-    """
-    #response = requests.get(url, headers=headers)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(2)
-    driver.execute_script("window.scrollTo(0, 0);")
-
-    response = driver.find_elements(By.CLASS_NAME,'scaffold-finite-scroll__content')
-    # Check if the response is successful
-    """if response.status_code != 200:
-        print(f"Failed to fetch posts: {response.status_code}")
-        return []
-    """
-
-    # Wait for 30 seconds after fetching the page
-    time.sleep(5)
-    
-    # Parse the HTML content
-    soup = BeautifulSoup(response[0].get_attribute('innerHTML'), 'html.parser')
-    
-    posts = []
-    
-    # Find the container holding the posts
-    feed_content = soup
-    if not feed_content:
-        print("Feed content not found.")
-        return posts
-    
-    # Loop through each post element
-    for post_div in feed_content.select("[data-finite-scroll-hotkey-item]"):
-        post_data = {}
-        
-        # Extract actor's information
-        actor = post_div.find('div', class_='update-components-actor')
-        if actor:
-            meta = actor.find('div', class_='update-components-actor__meta')
-            if meta:
-                title_link = meta.find('a', class_='app-aware-link')
-                if title_link:
-                    post_data['actor_name'] = title_link.get_text(strip=True)
-                    post_data['actor_profile'] = title_link['href']
-                    
-                description = meta.find('span', class_='update-components-actor__description')
-                if description:
-                    post_data['actor_description'] = description.get_text(strip=True)
-                    
-                time_info = meta.find('a', class_='app-aware-link')
-                if time_info:
-                    post_data['post_time'] = time_info.get_text(strip=True)
-        
-        # Extract the post content
-        post_content = post_div.find('div', class_='feed-shared-inline-show-more-text')
-        if post_content:
-            post_data['post_text'] = post_content.get_text(strip=True)
-        
-        # Extract any event information
-        event = post_div.find('section', class_='update-components-event')
-        if event:
-            event_info = event.find('a', class_='app-aware-link')
-            if event_info:
-                post_data['event_title'] = event_info.get_text(strip=True)
-                post_data['event_link'] = event_info['href']
-        
-        posts.append(post_data)
-    
-    return posts
 
 def call_chatgpt_api(post_text):
     """response = openai.Completion.create(
@@ -217,56 +140,10 @@ def generate_html(approved_posts):
     with open(f"approved_posts_{today}.html", 'w') as file:
         file.write(html_content)
 
-def generate_html_alternative(approved_posts, driver):
+def save_html(html_content):
     today = datetime.datetime.now().strftime("%Y-%m-%d")
-    html_content = f"<html><head><title>Approved Posts - {today}</title></head><body>"
-    elements = driver.find_elements(By.CLASS_NAME,'scaffold-finite-scroll__content')
-    elements = elements[0].find_elements(By.XPATH, "//*[@data-finite-scroll-hotkey-item]")
-    wait = WebDriverWait(driver, 10)
-    for index in approved_posts:
-        response = elements[index]
-        #clicks 3 dots button
-        response1 = response.find_elements(By.CLASS_NAME, 'feed-shared-control-menu')
-        response1 = response1[0].find_elements(By.XPATH, './div[1]/button[1]')
-        driver.execute_script("arguments[0].click();", response1[0])
-        #time.sleep(1)
-
-        #clicks embed code button 
-
-        response2 = response.find_elements(By.CLASS_NAME, 'feed-shared-control-menu')
-        #wait until the dropdown menu shows
-        response2 = WebDriverWait(response2[0], 10).until(
-        lambda d: response2[0].find_element(By.XPATH, './div[1]/div[1]/div[1]/ul[1]/li[3]/div[1]')
-        )
-        driver.execute_script("arguments[0].click();", response2)
-
-        #copies link of the embeding then closes the poppup
-        esc = WebDriverWait(driver, 3).until(
-        EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Dismiss']"))
-        )
-        check = driver.find_elements(By.ID, 'embed-modal-label')
-        if not check:
-            esc.click()
-            continue
-        response3 = driver.find_element(By.ID,'feed-components-shared-embed-modal__snippet')
-        WebDriverWait(driver, 10).until(
-        lambda d: response3.get_attribute("value").strip() != ""
-        )
-
-        #if we can, copy the embedding code
-        if response3:
-            link = response3.get_attribute("value")
-            html_content+=link
-            print(link)
-
-        #close poppup
-        if esc:
-            esc.click()
-    html_content+= "</body></html>"
     with open(f"approved_posts_{today}.html", 'w') as file:
         file.write(html_content)
-    print(html_content)
-    return True
 
 if __name__ == "__main__":
     driver = setup_driver()
@@ -275,14 +152,31 @@ if __name__ == "__main__":
         if not check_login_status(driver):
             login(driver)
         
+
         time.sleep(2)
-        posts = fetch_posts(driver)
-        #print(posts)
-        approved_posts = process_posts(posts[:10])
+        """
+        posts1 = fetch_posts_person(driver, "nishkambatta")
+        approved_posts = process_posts(posts1)
+        print(approved_posts)
+        print("\n\n\n")
+        print(generate_html_alt(approved_posts, driver, "./ul[1]/li"))
+        """
+        #posts = fetch_posts_person(driver, "nishkambatta", "all")
+        #posts = fetch_posts_person(driver, "nishkambatta", "comments")
+        posts = fetch_posts_person(driver, "nishkambatta", "reactions")
+        print(posts)
+        approved_posts = process_posts(posts)
         print(approved_posts)
         new_posts = save_to_json(posts)
 
-        generate_html_alternative(approved_posts, driver)
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        html = f"<html><head><title>Approved Posts - {today}</title></head><body>"
+
+        #html += generate_html_alt(approved_posts, driver, "//*[@data-finite-scroll-hotkey-item]")
+        html += generate_html_alt(approved_posts, driver, "./ul[1]/li")
+        html += "</body></html>"
+
+        save_html(html)
         
     finally:
         driver.quit()
