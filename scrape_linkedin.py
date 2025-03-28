@@ -6,7 +6,8 @@ import http.server
 import socketserver
 import webbrowser
 import asyncio
-
+import threading
+from flask import Flask, send_from_directory
 
 # Load the config
 with open('config.yaml') as config_file:
@@ -19,6 +20,7 @@ LOGIN_URL = config['urls']['login_url']
 FETCH_URL = config['urls']['fetch_url']
 TIMEOUT = config['settings']['timeout']
 APPROVED_TOPICS = config['topics']  # Replace with your approved topics
+PORT = 5000
 # CHROMEDRIVER_PATH = '/path/to/chromedriver'  # Ensure this path is correct
 
 def setup_driver():
@@ -139,29 +141,33 @@ def save_html(html_content):
     with open(f"approved_posts_{today}.html", 'w') as file:
         file.write(html_content)
 
-def launch_server(filepath):
-    PORT = 8000
+class MyHttpServer(socketserver.TCPServer):
+    allow_reuse_address = True  # Allows quick restart after shutdown
 
-    # Open the HTML file in the default browser
-    webbrowser.open(f"http://localhost:{PORT}/"+filepath)
-
-    # Set up a simple HTTP server
-    Handler = http.server.SimpleHTTPRequestHandler
-
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+# Function to start the server
+def start_server():
+    with MyHttpServer(("", PORT), http.server.SimpleHTTPRequestHandler) as httpd:
         print(f"Serving at http://localhost:{PORT}")
         httpd.serve_forever()
     
+app = Flask(__name__)
+
+@app.route('/')
+def serve_file():
+    return send_from_directory('.', 'approved_posts_2025-03-28.html')
+
+def run_flask():
+    app.run(port=PORT)
 
 async def main():
     driver = setup_driver()
     
     try:
-        if not check_login_status(driver):
+        """if not check_login_status(driver):
             login(driver)
         
 
-        time.sleep(1)
+        time.sleep(1)"""
         """
         posts1 = fetch_posts_person(driver, "nishkambatta")
         approved_posts = process_posts(posts1)
@@ -173,20 +179,30 @@ async def main():
         #posts = fetch_posts_person(driver, "nishkambatta", "comments")
         #posts = fetch_posts_person(driver, "nishkambatta", "reactions")
 
-        posts = fetch_posts(driver)
-        approved_posts = await process_posts(posts[:5])
+        """posts = fetch_posts(driver)
+        approved_posts = await process_posts(posts)
         new_posts = save_to_json(posts)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
         html = f"<html><head><title>Approved Posts - {today}</title></head><body>"
 
-        html += generate_html_alt(approved_posts[:5], driver, "//*[@data-finite-scroll-hotkey-item]")
+        html += generate_html_alt(approved_posts, driver, "//*[@data-finite-scroll-hotkey-item]")
         #html += generate_html_alt(approved_posts, driver, "./ul[1]/li")
         html += "</body></html>"
 
         save_html(html)
 
-        launch_server(filepath=f"approved_posts_{today}.html")
+        #TO DO: run server in seperate thread
+        # Start the server in a separate thread
+        """
+        flask_thread = threading.Thread(target=run_flask)
+        flask_thread.daemon = True
+        flask_thread.start()
+
+        # Open the HTML file in the default browser
+        webbrowser.open(f"http://localhost:{PORT}")
+
+        # Check if the tab is closed
     finally:
         driver.quit()
         print("finished...")

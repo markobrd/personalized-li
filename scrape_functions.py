@@ -32,9 +32,12 @@ def fetch_posts(driver):
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(0.5)
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(0.5)
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(1)
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     driver.execute_script("window.scrollTo(0, 0);")
+    time.sleep(2)
 
     response = driver.find_elements(By.CLASS_NAME,'scaffold-finite-scroll__content')
     # Check if the response is successful
