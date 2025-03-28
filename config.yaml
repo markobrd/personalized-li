@@ -1,6 +1,6 @@
 credentials:
-  username: uki.mar@gmail.com
-  password: uip3EMAp@aeMA!&
+  username: username
+  password: password
 
 urls:
   login_url: https://www.linkedin.com/feed/
