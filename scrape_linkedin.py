@@ -1,5 +1,6 @@
 import yaml
 import Ollama_check_topic
+import Gpt_check_topic
 from scrape_functions import *
 import http.server
 import socketserver
@@ -75,7 +76,7 @@ def call_chatgpt_api(post_text):
         max_tokens=10
     )
     return "approved" in response.choices[0].text.lower()"""
-    return post_text
+    return Gpt_check_topic.check_topic(post_text)
 
 def call_ollama_api(post_text):
     res = Ollama_check_topic.check_topic(post  =post_text, topics=APPROVED_TOPICS)
@@ -89,7 +90,7 @@ def process_posts(posts):
         try:
             #If the model is about given topics we save its post index so we can copy the embeding link later
             print(posts[i]['post_text'])
-            if True or call_ollama_api(posts[i]['post_text']):
+            if call_chatgpt_api(posts[i]['post_text']):
                 approved_posts.append(i)
         except:
             continue
@@ -168,9 +169,7 @@ if __name__ == "__main__":
         #posts = fetch_posts_person(driver, "nishkambatta", "reactions")
 
         posts = fetch_posts(driver)
-        print(posts)
-        approved_posts = process_posts(posts)
-        print(approved_posts)
+        approved_posts = process_posts(posts[:10])
         new_posts = save_to_json(posts)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
