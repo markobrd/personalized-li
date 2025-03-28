@@ -1,22 +1,10 @@
-import requests
-from bs4 import BeautifulSoup
-import json
-import time
-import datetime
-import os
-import pickle
-from pathlib import Path
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import TimeoutException
 import yaml
 import Ollama_check_topic
 from scrape_functions import *
+import http.server
+import socketserver
+import webbrowser
+
 
 # Load the config
 with open('config.yaml') as config_file:
@@ -145,6 +133,20 @@ def save_html(html_content):
     with open(f"approved_posts_{today}.html", 'w') as file:
         file.write(html_content)
 
+def launch_server(filepath):
+    PORT = 8000
+
+    # Open the HTML file in the default browser
+    webbrowser.open(f"http://localhost:{PORT}/"+filepath)
+
+    # Set up a simple HTTP server
+    Handler = http.server.SimpleHTTPRequestHandler
+
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+        print(f"Serving at http://localhost:{PORT}")
+        httpd.serve_forever()
+    
+
 if __name__ == "__main__":
     driver = setup_driver()
     
@@ -163,7 +165,9 @@ if __name__ == "__main__":
         """
         #posts = fetch_posts_person(driver, "nishkambatta", "all")
         #posts = fetch_posts_person(driver, "nishkambatta", "comments")
-        posts = fetch_posts_person(driver, "nishkambatta", "reactions")
+        #posts = fetch_posts_person(driver, "nishkambatta", "reactions")
+
+        posts = fetch_posts(driver)
         print(posts)
         approved_posts = process_posts(posts)
         print(approved_posts)
@@ -172,14 +176,16 @@ if __name__ == "__main__":
         today = datetime.datetime.now().strftime("%Y-%m-%d")
         html = f"<html><head><title>Approved Posts - {today}</title></head><body>"
 
-        #html += generate_html_alt(approved_posts, driver, "//*[@data-finite-scroll-hotkey-item]")
-        html += generate_html_alt(approved_posts, driver, "./ul[1]/li")
+        html += generate_html_alt(approved_posts[:5], driver, "//*[@data-finite-scroll-hotkey-item]")
+        #html += generate_html_alt(approved_posts, driver, "./ul[1]/li")
         html += "</body></html>"
 
         save_html(html)
-        
+
+        launch_server(filepath=f"approved_posts_{today}.html")
     finally:
         driver.quit()
+        print("finished...")
 
 
 
