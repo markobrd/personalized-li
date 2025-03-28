@@ -5,6 +5,7 @@ from scrape_functions import *
 import http.server
 import socketserver
 import webbrowser
+import asyncio
 
 
 # Load the config
@@ -84,16 +85,20 @@ def call_ollama_api(post_text):
     return "True" in res
 
 
-def process_posts(posts):
+async def process_posts(posts):
     approved_posts = []
-    for i in range(len(posts)):
+
+    tasks = [Gpt_check_topic.check_topic(posts[i]['post_text'], i) for i in range(len(posts)) if 'post_text' in posts[i]]
+    responses = await asyncio.gather(*tasks)
+    """for i in range(len(responses)):
         try:
             #If the model is about given topics we save its post index so we can copy the embeding link later
             print(posts[i]['post_text'])
-            if call_chatgpt_api(posts[i]['post_text']):
+            if posts[i]['post_text'] and Gpt_check_topic.check_topic(posts[i]['post_text']):
                 approved_posts.append(i)
         except:
-            continue
+            continue"""
+    approved_posts = [index for index in responses if index>=0]
     return approved_posts
 
 def save_to_json(posts):
@@ -148,7 +153,7 @@ def launch_server(filepath):
         httpd.serve_forever()
     
 
-if __name__ == "__main__":
+async def main():
     driver = setup_driver()
     
     try:
@@ -156,7 +161,7 @@ if __name__ == "__main__":
             login(driver)
         
 
-        time.sleep(2)
+        time.sleep(1)
         """
         posts1 = fetch_posts_person(driver, "nishkambatta")
         approved_posts = process_posts(posts1)
@@ -169,7 +174,7 @@ if __name__ == "__main__":
         #posts = fetch_posts_person(driver, "nishkambatta", "reactions")
 
         posts = fetch_posts(driver)
-        approved_posts = process_posts(posts[:10])
+        approved_posts = await process_posts(posts[:5])
         new_posts = save_to_json(posts)
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -185,6 +190,9 @@ if __name__ == "__main__":
     finally:
         driver.quit()
         print("finished...")
+
+if __name__ == "__main__":
+    asyncio.run(main())
 
 
 

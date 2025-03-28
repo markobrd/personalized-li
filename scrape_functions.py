@@ -34,7 +34,6 @@ def fetch_posts(driver):
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(2)
     driver.execute_script("window.scrollTo(0, 0);")
 
     response = driver.find_elements(By.CLASS_NAME,'scaffold-finite-scroll__content')
@@ -45,7 +44,7 @@ def fetch_posts(driver):
     """
 
     # Wait for 30 seconds after fetching the page
-    time.sleep(5)
+    time.sleep(1)
     
     # Parse the HTML content
     soup = BeautifulSoup(response[0].get_attribute('innerHTML'), 'html.parser')

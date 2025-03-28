@@ -3,20 +3,26 @@ import yaml
 
 with open('config.yaml') as config_file:
     config = yaml.safe_load(config_file)
-openai.api_key = config['API_KEY']
-def check_topic(post_text):
-    print(config['API_KEY'])
+
+client = openai.AsyncOpenAI(api_key=config['API_KEY'])
+
+
+async def check_topic(post_text, id):
+
     prompt = f"Is the following post relevant to any of these topics: {config['topics']}? Answer only True or False.\n\nPost: {post_text}"
-    print(config['topics'])
+
     messages = [{"role": "user", "content": prompt}]
-    response = openai.chat.completions.create(
+    response = await client.chat.completions.create(
         model="gpt-4o-mini",
         messages=messages,
         max_tokens=10
     )
     print(response.choices[0].message.content.lower() +"\n\n")
     # Simplified example; adjust based on actual API response
-    return "true" in response.choices[0].message.content.lower()
+    if "true" in response.choices[0].message.content.lower():
+        return id
+    else:
+        return -1
 
 if __name__ == "__main__":
     print("started")
