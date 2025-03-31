@@ -8,6 +8,7 @@ import webbrowser
 import asyncio
 import threading
 from flask import Flask, send_from_directory
+from html_components import *
 
 # Load the config
 with open('config.yaml') as config_file:
@@ -154,7 +155,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def serve_file():
-    return send_from_directory('.', 'approved_posts_2025-03-28.html')
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    return send_from_directory('.', f'approved_posts_{today}.html')
 
 def run_flask():
     app.run(port=PORT)
@@ -163,38 +165,48 @@ async def main():
     driver = setup_driver()
     
     try:
-        """if not check_login_status(driver):
+        if not check_login_status(driver):
             login(driver)
         
 
-        time.sleep(1)"""
-        """
-        posts1 = fetch_posts_person(driver, "nishkambatta")
+        time.sleep(1)
+
+        """posts1 = fetch_posts_person(driver, "nishkambatta")
         approved_posts = process_posts(posts1)
         print(approved_posts)
         print("\n\n\n")
-        print(generate_html_alt(approved_posts, driver, "./ul[1]/li"))
-        """
-        #posts = fetch_posts_person(driver, "nishkambatta", "all")
-        #posts = fetch_posts_person(driver, "nishkambatta", "comments")
-        #posts = fetch_posts_person(driver, "nishkambatta", "reactions")
-
-        """posts = fetch_posts(driver)
-        approved_posts = await process_posts(posts)
-        new_posts = save_to_json(posts)
+        print(generate_html_alt(approved_posts, driver, "./ul[1]/li"))"""
+        
 
         today = datetime.datetime.now().strftime("%Y-%m-%d")
-        html = f"<html><head><title>Approved Posts - {today}</title></head><body>"
+        html = html_top
 
-        html += generate_html_alt(approved_posts, driver, "//*[@data-finite-scroll-hotkey-item]")
-        #html += generate_html_alt(approved_posts, driver, "./ul[1]/li")
-        html += "</body></html>"
+        """posts_all = fetch_posts_person(driver, "nishkambatta", "all")
+        approved_posts_all = await process_posts(posts_all[:5])
+        html += generate_html_alt(approved_posts_all, driver, "./ul[1]/li")
+
+        posts_comments = fetch_posts_person(driver, "nishkambatta", "comments")
+        approved_posts_comments = await process_posts(posts_comments[:10])
+        html += generate_html_alt(approved_posts_comments, driver, "./ul[1]/li")
+
+        posts_reactions = fetch_posts_person(driver, "nishkambatta", "reactions")
+        approved_posts_reactions = await process_posts(posts_reactions[:10])
+        html += generate_html_alt(approved_posts_reactions, driver, "./ul[1]/li")"""
+
+        posts_feed = fetch_posts(driver)
+        approved_posts_feed = await process_posts(posts_feed[:10])
+        html += generate_html_alt(approved_posts_feed, driver, "//*[@data-finite-scroll-hotkey-item]")
+
+        #new_posts = save_to_json(posts)
+
+
+
+
+        html += html_bottom
 
         save_html(html)
 
-        #TO DO: run server in seperate thread
-        # Start the server in a separate thread
-        """
+
         flask_thread = threading.Thread(target=run_flask)
         flask_thread.daemon = True
         flask_thread.start()

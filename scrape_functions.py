@@ -107,7 +107,7 @@ def fetch_posts_person(driver, person, extension):
     driver.get(url)
 
 
-    time.sleep(2)
+    time.sleep(1)
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(1)
     
@@ -175,11 +175,11 @@ def generate_html_alt(approved_posts, driver, xpath):
         #if we can, copy the embedding code
         if response3:
             link = response3.get_attribute("value")
+            html_content+="""<div class="card">"""
             html_content+=link
             print(link)
-
+            html_content+="\n</div>"
         #close poppup
         if esc:
             esc.click()
-
     return html_content

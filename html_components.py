@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+html_top = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -65,15 +65,9 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <div class="post-content"> <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7310405701770588160?collapsed=1" height="399" width="504" frameborder="0" allowfullscreen="" title="Embedded post"></iframe>
-               </div>
-        </div>
-        <div class="card">
-            <div class="post-content"> 
-               <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7309893277464354817?collapsed=1" height="399" width="504" frameborder="0" allowfullscreen="" title="Embedded post"></iframe></div>
-        </div>
-    </div>
+    <div class="container">"""
+
+
+html_bottom = """</div>
 </body>
-</html>
+</html>"""
