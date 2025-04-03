@@ -7,8 +7,9 @@ import socketserver
 import webbrowser
 import asyncio
 import threading
-from flask import Flask, send_from_directory
 from html_components import *
+import subprocess
+import pyperclip
 
 # Load the config
 with open('config.yaml') as config_file:
@@ -51,7 +52,7 @@ def login(driver):
     # Go to login page
     driver.get(LOGIN_URL)
     # Try to load cookies
-    if load_cookies(driver) : return
+    #if load_cookies(driver) : return
     # Login if needed (don't forget two step verification, if it's set up)
     if check_login_status(driver):
         username_field = driver.find_element(By.ID, "username")
@@ -91,7 +92,7 @@ def call_ollama_api(post_text):
 async def process_posts(posts):
     approved_posts = []
 
-    tasks = [Gpt_check_topic.check_topic(posts[i]['post_text'], i) for i in range(len(posts)) if 'post_text' in posts[i]]
+    tasks = [Gpt_check_topic.check_topic(posts[i], i) for i in range(len(posts)) if 'post_text' in posts[i]]
     responses = await asyncio.gather(*tasks)
     """for i in range(len(responses)):
         try:
@@ -101,67 +102,54 @@ async def process_posts(posts):
                 approved_posts.append(i)
         except:
             continue"""
-    approved_posts = [index for index in responses if index>=0]
+    approved_posts = [response for response in responses if 'post_text' in response]
     return approved_posts
 
 def save_to_json(posts):
     today = datetime.datetime.now().strftime("%Y-%m-%d")
     file_name = f"posts_{today}.json"
     
+    with open(file_name, 'w') as file:
+        json.dump(posts, file, indent=4)
+    
+    return posts
+
+def load_visited_posts():
+    file_name = "visited_posts.json"
+    keys = {''}
+    existing_keys =[]
     if os.path.exists(file_name):
         with open(file_name, 'r') as file:
-            existing_posts = json.load(file)
-    else:
-        existing_posts = []
-    
-    new_posts = [post for post in posts if post not in existing_posts]
-    
-    with open(file_name, 'w') as file:
-        json.dump(existing_posts + new_posts, file, indent=4)
-    
-    return new_posts
+            existing_keys = json.load(file)
+    for key in existing_keys:
+        keys.add(key['key'])
+    return keys
 
-def generate_html(approved_posts):
-    today = datetime.datetime.now().strftime("%Y-%m-%d")
-    html_content = f"<html><head><title>Approved Posts - {today}</title></head><body>"
-    
-    for post in approved_posts:
-        html_content += f"<h2><a href='{post['url']}'>{post['name']}</a></h2>"
-        html_content += f"<p>{post['text']}</p>"
-        html_content += "<h3>Comments:</h3>"
-        for comment in post['comments']:
-            html_content += f"<p><a href='{comment['profile_url']}'>{comment['name']}</a>: {comment['text']}</p>"
-    
-    html_content += "</body></html>"
-    
-    with open(f"approved_posts_{today}.html", 'w') as file:
-        file.write(html_content)
+def save_visited_posts(keys):
+    new_keys = []
+    file_name = "visited_posts.json"
+    for key in keys:
+        new_keys.append({'key':key})
+
+    with open(file_name, 'w') as file:
+        json.dump(new_keys, file, indent=4)
+
+    return new_keys
 
 def save_html(html_content):
     today = datetime.datetime.now().strftime("%Y-%m-%d")
-    with open(f"approved_posts_{today}.html", 'w') as file:
+    with open(f"saved_feeds/approved_posts_{today}.html", 'w') as file:
         file.write(html_content)
 
-class MyHttpServer(socketserver.TCPServer):
-    allow_reuse_address = True  # Allows quick restart after shutdown
 
 # Function to start the server
-def start_server():
-    with MyHttpServer(("", PORT), http.server.SimpleHTTPRequestHandler) as httpd:
-        print(f"Serving at http://localhost:{PORT}")
-        httpd.serve_forever()
-    
-app = Flask(__name__)
-
-@app.route('/')
-def serve_file():
-    today = datetime.datetime.now().strftime("%Y-%m-%d")
-    return send_from_directory('.', f'approved_posts_{today}.html')
-
-def run_flask():
-    app.run(port=PORT)
+def start_flask_server():
+    print("Starting Flask server...")
+    subprocess.Popen(['python', 'flask_server.py'])
+    print("Flask server started.")    
 
 async def main():
+
     driver = setup_driver()
     
     try:
@@ -171,52 +159,44 @@ async def main():
 
         time.sleep(1)
 
-        """posts1 = fetch_posts_person(driver, "nishkambatta")
-        approved_posts = process_posts(posts1)
-        print(approved_posts)
-        print("\n\n\n")
-        print(generate_html_alt(approved_posts, driver, "./ul[1]/li"))"""
-        
-
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
-        html = html_top
-
-        """posts_all = fetch_posts_person(driver, "nishkambatta", "all")
+        saved_keys = load_visited_posts()
+        #html = html_top
+        blacklist = "nishkambatta"
+        posts_all, saved_keys = fetch_posts_person(driver, "nishkambatta", "all", saved_keys)
         approved_posts_all = await process_posts(posts_all[:5])
-        html += generate_html_alt(approved_posts_all, driver, "./ul[1]/li")
+        #html += generate_html_alt(approved_posts_all, driver, "./ul[1]/li")
+        link = scrape_link_only(driver, approved_posts_all, "./ul[1]/li")
 
-        posts_comments = fetch_posts_person(driver, "nishkambatta", "comments")
+        posts_comments, saved_keys = fetch_posts_person(driver, "nishkambatta", "comments", saved_keys)
         approved_posts_comments = await process_posts(posts_comments[:10])
-        html += generate_html_alt(approved_posts_comments, driver, "./ul[1]/li")
+        links = scrape_link_only(driver, approved_posts_comments, "./ul[1]/li")
+        #html += generate_html_alt(approved_posts_comments, driver, "./ul[1]/li")
 
-        posts_reactions = fetch_posts_person(driver, "nishkambatta", "reactions")
+
+        posts_reactions, saved_keys = fetch_posts_person(driver, "nishkambatta", "reactions", saved_keys)
         approved_posts_reactions = await process_posts(posts_reactions[:10])
-        html += generate_html_alt(approved_posts_reactions, driver, "./ul[1]/li")"""
+        links = scrape_link_only(driver, approved_posts_reactions, "./ul[1]/li")
+        #html += generate_html_alt(approved_posts_reactions, driver, "./ul[1]/li")
+        #print(posts_comments)
 
-        posts_feed = fetch_posts(driver)
-        approved_posts_feed = await process_posts(posts_feed[:10])
-        html += generate_html_alt(approved_posts_feed, driver, "//*[@data-finite-scroll-hotkey-item]")
+        posts_feed, saved_keys = fetch_posts(driver, saved_keys, [])
+        approved_posts_feed = await process_posts(posts_feed)
+        links = scrape_link_only(driver, approved_posts_feed, "//*[@data-finite-scroll-hotkey-item]")
+        #html += generate_html_alt(approved_posts_feed, driver, "//*[@data-finite-scroll-hotkey-item]")
 
-        #new_posts = save_to_json(posts)
+        new_posts = save_to_json(approved_posts_feed+approved_posts_all+approved_posts_comments+approved_posts_reactions)
 
-
-
-
-        html += html_bottom
-
-        save_html(html)
+        save_visited_posts(saved_keys)
 
 
-        flask_thread = threading.Thread(target=run_flask)
-        flask_thread.daemon = True
-        flask_thread.start()
+        #html += html_bottom
 
-        # Open the HTML file in the default browser
-        webbrowser.open(f"http://localhost:{PORT}")
+        #save_html(html)
 
         # Check if the tab is closed
     finally:
         driver.quit()
+        start_flask_server()
         print("finished...")
 
 if __name__ == "__main__":

@@ -7,9 +7,9 @@ with open('config.yaml') as config_file:
 client = openai.AsyncOpenAI(api_key=config['API_KEY'])
 
 
-async def check_topic(post_text, id):
+async def check_topic(post, id):
 
-    prompt = f"Is the following post relevant to any of these topics: {config['topics']}? Answer only True or False.\n\nPost: {post_text}"
+    prompt = f"Is the following post relevant to any of these topics: {config['topics']}? Answer only True or False.\n\nPost: {post['post_text']}"
 
     messages = [{"role": "user", "content": prompt}]
     response = await client.chat.completions.create(
@@ -20,9 +20,9 @@ async def check_topic(post_text, id):
     print(response.choices[0].message.content.lower() +"\n\n")
     # Simplified example; adjust based on actual API response
     if "true" in response.choices[0].message.content.lower():
-        return id
+        return post
     else:
-        return -1
+        return {}
 
 if __name__ == "__main__":
     print("started")

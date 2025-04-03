@@ -1,4 +1,4 @@
-html_top = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -74,19 +74,6 @@ html_top = """<!DOCTYPE html>
     </script>
 </head>
 <body>
-    <div class="container">"""
-
-
-html_bottom = """</div>
+    <div class="container"></div>
 </body>
-</html>"""
-
-js_resize_func ="""   <script>
-        function resizeIframe(iframe) {
-            try {
-                iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
-            } catch (e) {
-                console.error("Cannot access iframe content (cross-origin issue).");
-            }
-        }
-    </script>"""
+</html>
