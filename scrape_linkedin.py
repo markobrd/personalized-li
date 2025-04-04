@@ -164,7 +164,7 @@ async def main():
 
         saved_keys = load_visited_posts()
         #html = html_top
-        blacklist = ["nishkambatta"]
+        blacklist = config["blacklist"]
         posts_all, saved_keys = fetch_posts_person(driver, "nishkambatta", "all", saved_keys, blacklist)
         approved_posts_all = await process_posts(posts_all[:5])
         #html += generate_html_alt(approved_posts_all, driver, "./ul[1]/li")
