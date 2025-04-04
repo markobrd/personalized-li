@@ -72,7 +72,7 @@ def fetch_posts(driver, saved_keys, blacklist = []):
             continue
 
         profile_link = profile_link.find('a')
-        if not profile_link or profile_link.get('href').split("/")[3] in blacklist or profile_link.get('href').split("/")[4] in blacklist:
+        if not profile_link or (profile_link.get('href').split("/")[3] in blacklist) or (profile_link.get('href').split("/")[4].split("?")[0] in blacklist):
             iter+=1
             continue
 
@@ -198,7 +198,7 @@ def fetch_posts_person(driver, person, extension, saved_keys, blacklist = []):
             continue
 
         profile_link = profile_link.find('a')
-        if not profile_link or profile_link.get('href').split("/")[3] in blacklist or profile_link.get('href').split("/")[4] in blacklist:
+        if not profile_link or (profile_link.get('href').split("/")[3] in blacklist) or (profile_link.get('href').split("/")[4].split("?")[0] in blacklist):
             iter+=1
             print("skip link 2")
             continue

@@ -107,10 +107,13 @@ async def process_posts(posts):
 
 def save_to_json(posts):
     today = datetime.datetime.now().strftime("%Y-%m-%d")
-    file_name = f"posts_{today}.json"
-    
+    file_name = f"JSON_DATA/posts_{today}.json"
+    old_posts = []
+    if os.path.exists(file_name):
+        with open(file_name, 'r') as file:
+            old_posts = json.load(file)
     with open(file_name, 'w') as file:
-        json.dump(posts, file, indent=4)
+        json.dump(old_posts+posts, file, indent=4)
     
     return posts
 
@@ -161,25 +164,25 @@ async def main():
 
         saved_keys = load_visited_posts()
         #html = html_top
-        blacklist = "nishkambatta"
-        posts_all, saved_keys = fetch_posts_person(driver, "nishkambatta", "all", saved_keys)
+        blacklist = ["nishkambatta"]
+        posts_all, saved_keys = fetch_posts_person(driver, "nishkambatta", "all", saved_keys, blacklist)
         approved_posts_all = await process_posts(posts_all[:5])
         #html += generate_html_alt(approved_posts_all, driver, "./ul[1]/li")
         link = scrape_link_only(driver, approved_posts_all, "./ul[1]/li")
 
-        posts_comments, saved_keys = fetch_posts_person(driver, "nishkambatta", "comments", saved_keys)
+        posts_comments, saved_keys = fetch_posts_person(driver, "nishkambatta", "comments", saved_keys, blacklist)
         approved_posts_comments = await process_posts(posts_comments[:10])
         links = scrape_link_only(driver, approved_posts_comments, "./ul[1]/li")
         #html += generate_html_alt(approved_posts_comments, driver, "./ul[1]/li")
 
 
-        posts_reactions, saved_keys = fetch_posts_person(driver, "nishkambatta", "reactions", saved_keys)
+        posts_reactions, saved_keys = fetch_posts_person(driver, "nishkambatta", "reactions", saved_keys, blacklist)
         approved_posts_reactions = await process_posts(posts_reactions[:10])
         links = scrape_link_only(driver, approved_posts_reactions, "./ul[1]/li")
         #html += generate_html_alt(approved_posts_reactions, driver, "./ul[1]/li")
         #print(posts_comments)
 
-        posts_feed, saved_keys = fetch_posts(driver, saved_keys, [])
+        posts_feed, saved_keys = fetch_posts(driver, saved_keys, blacklist)
         approved_posts_feed = await process_posts(posts_feed)
         links = scrape_link_only(driver, approved_posts_feed, "//*[@data-finite-scroll-hotkey-item]")
         #html += generate_html_alt(approved_posts_feed, driver, "//*[@data-finite-scroll-hotkey-item]")
