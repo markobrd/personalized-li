@@ -170,66 +170,81 @@ def run_for_account(incognito):
     print("logged in")
     driver.quit()
 
-async def main():
-    print(datetime.datetime.now())
+async def main(usernames=None):
+    """
+    Scrape LinkedIn profiles for the given list of usernames
+    
+    Args:
+        usernames (list): List of LinkedIn usernames to scrape. If None, uses usernames from config.
+    """
+    print(f"Starting scrape at {datetime.datetime.now()}")
+    
+    # If no usernames provided, use the ones from config
+    if usernames is None:
+        # Check if usernames exist in config, otherwise use a default
+        usernames = config.get('usernames', ['nishkambatta'])
+    
     driver = setup_driver(False)
-    #driver2 = setup_driver(True)
 
     try:
-
+        # Login if needed
         if not check_login_status(driver):
             login(driver)
-        """incognito1=True
-        incognito2=False
-        threading.Thread(target=run_for_account, args=(("incognito1"),) , daemon=True).start()
-        time.sleep(2)
-        threading.Thread(target=run_for_account, args=(("incognito2"),), daemon=True).start()
-        time.sleep(10)"""
-
+            
         saved_keys = load_visited_posts()
-        #html = html_top
-        blacklist = config["blacklist"]
-        posts_all, saved_keys = fetch_posts_person(driver, "nishkambatta", "all", saved_keys, blacklist)
-        approved_posts_all = await process_posts(posts_all[:5])
-        #html += generate_html_alt(approved_posts_all, driver, "./ul[1]/li")
-        link = scrape_link_only(driver, approved_posts_all, "./ul[1]/li")
-
-        posts_comments, saved_keys = fetch_posts_person(driver, "nishkambatta", "comments", saved_keys, blacklist)
-        approved_posts_comments = await process_posts(posts_comments[:10])
-        links = scrape_link_only(driver, approved_posts_comments, "./ul[1]/li")
-        #html += generate_html_alt(approved_posts_comments, driver, "./ul[1]/li")
-
-
-        posts_reactions, saved_keys = fetch_posts_person(driver, "nishkambatta", "reactions", saved_keys, blacklist)
-        approved_posts_reactions = await process_posts(posts_reactions[:10])
-        links = scrape_link_only(driver, approved_posts_reactions, "./ul[1]/li")
-        #html += generate_html_alt(approved_posts_reactions, driver, "./ul[1]/li")
-        #print(posts_comments)
-
+        blacklist = config.get("blacklist", [])
+        
+        all_approved_posts = []
+        
+        # Iterate through each username
+        for username in usernames:
+            print(f"Scraping profile for: {username}")
+            
+            # Scrape "all" activity
+            posts_all, saved_keys = fetch_posts_person(driver, username, "all", saved_keys, blacklist)
+            approved_posts_all = await process_posts(posts_all[:5])
+            links = scrape_link_only(driver, approved_posts_all, "./ul[1]/li")
+            all_approved_posts.extend(approved_posts_all)
+            
+            # Scrape comments
+            posts_comments, saved_keys = fetch_posts_person(driver, username, "comments", saved_keys, blacklist)
+            approved_posts_comments = await process_posts(posts_comments[:10])
+            links = scrape_link_only(driver, approved_posts_comments, "./ul[1]/li")
+            all_approved_posts.extend(approved_posts_comments)
+            
+            # Scrape reactions
+            posts_reactions, saved_keys = fetch_posts_person(driver, username, "reactions", saved_keys, blacklist)
+            approved_posts_reactions = await process_posts(posts_reactions[:10])
+            links = scrape_link_only(driver, approved_posts_reactions, "./ul[1]/li")
+            all_approved_posts.extend(approved_posts_reactions)
+            
+            print(f"Finished scraping {username}")
+        
+        # Optionally, still scrape the main feed
         posts_feed, saved_keys = fetch_posts(driver, saved_keys, blacklist)
         approved_posts_feed = await process_posts(posts_feed)
         links = scrape_link_only(driver, approved_posts_feed, "//*[@data-finite-scroll-hotkey-item]")
-        #html += generate_html_alt(approved_posts_feed, driver, "//*[@data-finite-scroll-hotkey-item]")
-
-        #new_posts = save_to_json(approved_posts_feed+approved_posts_all+approved_posts_comments+approved_posts_reactions)
-
+        all_approved_posts.extend(approved_posts_feed)
+        
+        # Save all approved posts to JSON
+        save_to_json(all_approved_posts)
+        
+        # Update the visited posts
         save_visited_posts(saved_keys)
-
-
-        #html += html_bottom
-
-        #save_html(html)
-
-        # Check if the tab is closed
+        
     finally:
-        #driver.quit()
-        #start_flask_server()
-        print(datetime.datetime.now())
-        print("finished...")
+        # driver.quit()  # Uncomment to close browser when done
+        print(f"Finished scraping at {datetime.datetime.now()}")
+        print("Scraping complete")
 
+# If running the script directly, you can provide a list of usernames
 if __name__ == "__main__":
+    # Option 1: Use default usernames from config
     asyncio.run(main())
-
+    
+    # Option 2: Specify usernames directly
+    # usernames_to_scrape = ["user1", "user2", "user3"]
+    # asyncio.run(main(usernames_to_scrape))
 
 
 
