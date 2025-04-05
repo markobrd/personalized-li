@@ -87,7 +87,7 @@
 
     <script>
         let fileIndex = 0;
-
+        let elemIndex = 0;
         function createPostElement(post) {
             const container = document.createElement('div');
             container.className = 'post-container';
@@ -121,7 +121,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ file_index: fileIndex })
+                body: JSON.stringify({ file_index: fileIndex, elem_index: elemIndex })
             })
             .then(response => response.json())
             .then(result => {
@@ -131,6 +131,7 @@
                     container.appendChild(postElement);
                 });
                 fileIndex = result.next;
+                elemIndex = result.elem_index
                 const btn = document.getElementById('loadMoreBtn');
                 btn.style.display = (fileIndex != -1) ? 'block' : 'none';
             });
