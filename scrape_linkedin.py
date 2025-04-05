@@ -1,5 +1,5 @@
 import yaml
-import Ollama_check_topic
+#import Ollama_check_topic
 import Gpt_check_topic
 from scrape_functions import *
 import http.server
@@ -10,6 +10,7 @@ import threading
 from html_components import *
 import subprocess
 import pyperclip
+from webdriver_manager.chrome import ChromeDriverManager
 
 # Load the config
 with open('config.yaml') as config_file:
@@ -23,16 +24,19 @@ FETCH_URL = config['urls']['fetch_url']
 TIMEOUT = config['settings']['timeout']
 APPROVED_TOPICS = config['topics']  # Replace with your approved topics
 PORT = 5000
+
 # CHROMEDRIVER_PATH = '/path/to/chromedriver'  # Ensure this path is correct
 
-def setup_driver():
+def setup_driver(incognito = False):
     chrome_options = Options()
     user_profile_path = 'C:/Users/Uros/AppData/Local/Google/Chrome/User Data/Default'
     #chrome_options.add_argument("--headless")  # Run in headless mode if you don't need the UI
     chrome_options.add_argument(f'user-data-dir={user_profile_path}')
     # service = Service(CHROMEDRIVER_PATH)
-    # driver = webdriver.Chrome(service=service, options=chrome_options)
-    driver = webdriver.Chrome(options=chrome_options)
+    if incognito:
+        chrome_options.add_argument("--incognito")
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
     return driver
 
 def save_cookies(driver):
@@ -47,12 +51,14 @@ def load_cookies(driver):
                 # print(cookie['domain'])
                 driver.add_cookie(cookie)
             driver.refresh()
+            return True
+    return False
 
 def login(driver):
     # Go to login page
     driver.get(LOGIN_URL)
     # Try to load cookies
-    #if load_cookies(driver) : return
+    if load_cookies(driver) : return
     # Login if needed (don't forget two step verification, if it's set up)
     if check_login_status(driver):
         username_field = driver.find_element(By.ID, "username")
@@ -83,10 +89,10 @@ def call_chatgpt_api(post_text):
     return "approved" in response.choices[0].text.lower()"""
     return Gpt_check_topic.check_topic(post_text)
 
-def call_ollama_api(post_text):
+"""def call_ollama_api(post_text):
     res = Ollama_check_topic.check_topic(post  =post_text, topics=APPROVED_TOPICS)
     print(res)
-    return "True" in res
+    return "True" in res"""
 
 
 async def process_posts(posts):
@@ -150,16 +156,35 @@ def start_flask_server():
     print("Starting Flask server...")
     subprocess.Popen(['python', 'flask_server.py'])
     print("Flask server started.")    
+    
+def run_for_account(incognito):
+    print(incognito)
+    if incognito=="incognito1":
+        driver = setup_driver(False)
+    else:
+        driver = setup_driver(True)
+    # Do things with this account
+    if not check_login_status(driver):
+            login(driver)
+
+    print("logged in")
+    driver.quit()
 
 async def main():
+    print(datetime.datetime.now())
+    #driver = setup_driver(False)
+    #driver2 = setup_driver(True)
 
-    driver = setup_driver()
     try:
-        if not check_login_status(driver):
-            login(driver)
-        
 
-        time.sleep(1)
+        """if not check_login_status(driver):
+            login(driver)"""
+        """incognito1=True
+        incognito2=False
+        threading.Thread(target=run_for_account, args=(("incognito1"),) , daemon=True).start()
+        time.sleep(2)
+        threading.Thread(target=run_for_account, args=(("incognito2"),), daemon=True).start()
+        time.sleep(10)"""
 
         saved_keys = load_visited_posts()
         #html = html_top
@@ -186,7 +211,7 @@ async def main():
         links = scrape_link_only(driver, approved_posts_feed, "//*[@data-finite-scroll-hotkey-item]")
         #html += generate_html_alt(approved_posts_feed, driver, "//*[@data-finite-scroll-hotkey-item]")
 
-        new_posts = save_to_json(approved_posts_feed+approved_posts_all+approved_posts_comments+approved_posts_reactions)
+        #new_posts = save_to_json(approved_posts_feed+approved_posts_all+approved_posts_comments+approved_posts_reactions)
 
         save_visited_posts(saved_keys)
 
@@ -197,8 +222,9 @@ async def main():
 
         # Check if the tab is closed
     finally:
-        driver.quit()
-        start_flask_server()
+        #driver.quit()
+        #start_flask_server()
+        print(datetime.datetime.now())
         print("finished...")
 
 if __name__ == "__main__":
