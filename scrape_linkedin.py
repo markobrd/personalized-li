@@ -154,7 +154,6 @@ def start_flask_server():
 async def main():
 
     driver = setup_driver()
-    
     try:
         if not check_login_status(driver):
             login(driver)

@@ -11,7 +11,7 @@ with open('config.yaml') as config_file:
 
 DATA_FOLDER = "JSON_DATA"
 NUM_POSTS_PER_LOAD = config['posts_to_load']
-PORT = 5000
+PORT = config['PORT']
 files = sorted(os.listdir(DATA_FOLDER))
 app = Flask(__name__)
 
@@ -48,7 +48,6 @@ def load_data():
             else:
                 file_index = -1
         
-        print(file_index)
         return jsonify({'data': out, 'next': file_index, 'elem_index': elem_index})
 
     return jsonify({'data': [], 'next': -1, 'elem_index':-1})

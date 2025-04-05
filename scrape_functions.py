@@ -84,6 +84,7 @@ def fetch_posts(driver, saved_keys, blacklist = []):
         post_data['id'] = iter
         
         #Get link to the profile img of the user 
+        #TO DO FIX: The issue is when the post is reposted, the person commented on a post or reacted. Find a way around this
         img_link = post_div.find('div', class_= "ivm-view-attr__img-wrapper")
         img_link = img_link.find('img')
         if img_link:
