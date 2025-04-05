@@ -172,13 +172,13 @@ def run_for_account(incognito):
 
 async def main():
     print(datetime.datetime.now())
-    #driver = setup_driver(False)
+    driver = setup_driver(False)
     #driver2 = setup_driver(True)
 
     try:
 
-        """if not check_login_status(driver):
-            login(driver)"""
+        if not check_login_status(driver):
+            login(driver)
         """incognito1=True
         incognito2=False
         threading.Thread(target=run_for_account, args=(("incognito1"),) , daemon=True).start()
