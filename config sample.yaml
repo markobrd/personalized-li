@@ -1,0 +1,77 @@
+# LinkedIn Scraper Configuration
+
+settings:
+  timeout: 30
+
+topics: ["AI", "Machine Learning", "Data Science", "Buissiness solutions"]
+
+# LinkedIn credentials
+credentials:
+  username: username
+  password: password
+
+# URLs for LinkedIn
+urls:
+  login_url: https://www.linkedin.com/feed/
+  fetch_url: https://www.linkedin.com/login
+
+# Settings
+settings:
+  timeout: 30  # Seconds to wait for page loading
+
+# Users to scrape (LinkedIn usernames)
+usernames:
+  - timo-dechau
+  - paullevchuk
+  - benjaminrogojan
+
+# Topics to filter for
+topics:
+  - "AI"
+  - "Machine Learning"
+  - "Data Science"
+  - "Business solutions"
+  - "Artificial Intelligence"
+
+# Usernames to exclude from scraping
+blacklist:
+  - competitor1
+  - spammer2
+
+# Scraping options
+scrape_feed: true         # Whether to scrape main feed
+scrape_comments: true     # Whether to scrape comments for each user
+scrape_reactions: true    # Whether to scrape reactions for each user
+
+# Chrome profile path (optional)
+# chrome_profile_path: C:/Users/YourName/AppData/Local/Google/Chrome/User Data/Default
+
+# Limits
+max_feed_posts: 20        # Maximum posts to scrape from main feed
+max_user_posts: 10        # Maximum posts to scrape from user's "all" activity
+max_comments: 5           # Maximum posts to scrape from user's comments
+max_reactions: 5          # Maximum posts to scrape from user's reactions
+posts_to_load: 5          # Number of posts to load per request in the UI
+
+# Flask server port
+PORT: 5000
+
+# API key for GPT/OpenAI (used by Gpt_check_topic.py)
+API_KEY: API_KEY
+
+# Ovo bi trebalo da se izbaci odavde i da se programski utvrdi
+# Browser profile settings
+# Uncomment and adjust paths for your system
+# Windows example:
+# chrome_profile_path: C:/Users/YourUsername/AppData/Local/Google/Chrome/User Data
+# chrome_profile_name: Default
+
+# macOS example:
+chrome_profile_path: /Users/UserName/Library/Application Support/Google/Chrome
+chrome_profile_name: Default
+
+
+# Linux example:
+# chrome_profile_path: /home/YourUsername/.config/google-chrome
+# chrome_profile_name: Default
+

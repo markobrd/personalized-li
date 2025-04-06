@@ -1,83 +1,392 @@
 [
     {
-        "key": ""
+        "key": "Are we seeing an industry-wide move"
     },
     {
-        "key": "Using ChatGPT to write a PowerPoint"
+        "key": "I have kicked off the production fo"
     },
     {
-        "key": "In today\u2019s rapidly evolving busines"
+        "key": "I just realized the following:\u274c Peo"
     },
     {
-        "key": "Body and mind are not separate.Ment"
+        "key": "Data engineering is slowly dying.We"
     },
     {
-        "key": "Aggression vs Patience: The Right B"
+        "key": "THE TECHNOLOGY BEHIND ATHLETE ROBOT"
     },
     {
-        "key": "Can AI Really Optimize Your Product"
+        "key": "Tracking Everything Means Measuring"
     },
     {
-        "key": "How to Calculate the Size of a Foot"
+        "key": "When I first started as a data engi"
     },
     {
-        "key": "As Women's Month ends, a reminder: "
+        "key": "\ud83e\udd16 \ud835\udc68\ud835\udc79\ud835\udc6c \ud835\udc7a\ud835\udc74\ud835\udc68\ud835\udc79\ud835\udc7b \ud835\udc6b\ud835\udc6c\ud835\udc7d\ud835\udc70\ud835\udc6a\ud835\udc6c\ud835\udc7a \ud835\udc74\ud835\udc68\ud835\udc72\ud835\udc70\ud835\udc75\ud835\udc6e \ud835\udc73\ud835\udc70\ud835\udc6d\ud835\udc6c \ud835\udc7a\ud835\udc70\ud835\udc74"
     },
     {
-        "key": "Creativity is a gift but \u2026..Clarity"
+        "key": "For the past 1.5 months I volunteer"
     },
     {
-        "key": "Discipline is freedom.It\u2019s when you"
+        "key": "Check out my quick SQL Saturday tip"
     },
     {
-        "key": "Earn something new everyday! \ud83d\udcab\ud83e\udd16In 2"
+        "key": "BOOM! The Llama-4 brood is out.- Sc"
     },
     {
-        "key": "We might've found a solution to the"
+        "key": "Oddball advice, anyone? \ud83c\udfb3 Over the "
     },
     {
-        "key": "We will all have different visceral"
+        "key": "You can now generate videos in Goog"
     },
     {
-        "key": "AI-powered language learning: A sma"
+        "key": "Data teams and leaders fail to get "
     },
     {
-        "key": "Why True Leaders Lead with HeartLea"
+        "key": "Are you leading a data team? Or pla"
     },
     {
-        "key": "\ud83d\udcddPower isn\u2019t in what happens, but i"
+        "key": "No one on Earth sits on as much dat"
     },
     {
-        "key": "Life never moves at the pace we thi"
+        "key": "Why isn't marketing analytics getti"
     },
     {
-        "key": "Ghibli Meets Interstellar With Chat"
+        "key": "I'm currently building out the part"
     },
     {
-        "key": "Change is inevitable, but resistanc"
+        "key": "SSO (Single Sign-On) explained.SSO "
     },
     {
-        "key": "We\u2019re back with the second edition "
+        "key": "If you want to become a world-class"
     },
     {
-        "key": "Side-by-Side Comparison: Original v"
+        "key": "AI has significantly changed the SE"
     },
     {
-        "key": "Once you fall for System Design and"
+        "key": "Over the past two years, I've been "
     },
     {
-        "key": "10 blog post templates I use in eve"
+        "key": "Someone out there needs to hear thi"
     },
     {
-        "key": "As we witness the rise of robotaxis"
+        "key": "Product tours are dead! Or are they"
     },
     {
-        "key": "A plan requires some level of intel"
+        "key": "Yesterday, I published two new post"
     },
     {
-        "key": "Can AI-powered analytics truly unde"
+        "key": "The feeling is mutual Benjamin Rogo"
     },
     {
-        "key": "Stop Using Outdated Resume Methods!"
+        "key": "Two weeks ago, I wrote a blog post "
+    },
+    {
+        "key": "Data Analyst!If you could pick one "
+    },
+    {
+        "key": "Controversial opinion: using an ema"
+    },
+    {
+        "key": "While there\u2019s all the rage about ne"
+    },
+    {
+        "key": "Are you too focused on the problems"
+    },
+    {
+        "key": "The moment when you have recorded 4"
+    },
+    {
+        "key": "If you work on a data science or da"
+    },
+    {
+        "key": "Data leaders, especially those at t"
+    },
+    {
+        "key": "A sad truth is that most tracking s"
+    },
+    {
+        "key": "Going from a data engineer or analy"
+    },
+    {
+        "key": "\ud83d\ude80Breaking: OpenAI Launches \"Monday\""
+    },
+    {
+        "key": "It all started in a cabin in the Sw"
+    },
+    {
+        "key": "This is what y\u2019all look like when y"
+    },
+    {
+        "key": "Are We Missing the Bigger Picture i"
+    },
+    {
+        "key": "Want to make the most of your weeke"
+    },
+    {
+        "key": "\ud83e\udd2f I'm shocked! I just said there ar"
+    },
+    {
+        "key": "\ud83d\udd0d\u00a0Why Adding More Signals Doesn't A"
+    },
+    {
+        "key": "And \"just like that\", Growth Gems i"
+    },
+    {
+        "key": "I've noticed a trend in AI-generate"
+    },
+    {
+        "key": "Controversial take:Starbucks and Fo"
+    },
+    {
+        "key": "It had to happen eventually - the o"
+    },
+    {
+        "key": "I\u2019m thrilled to share a new Q&A, pu"
+    },
+    {
+        "key": "Feedback and Assessment in Higher E"
+    },
+    {
+        "key": "How AI transforms industries by inn"
+    },
+    {
+        "key": "Slack runs on more than 3000 Vitess"
+    },
+    {
+        "key": "Running a successful data team is h"
+    },
+    {
+        "key": "I never have - nor never will - use"
+    },
+    {
+        "key": "The actual number of non-data peopl"
+    },
+    {
+        "key": "How to choose between Dimensional M"
+    },
+    {
+        "key": "Duolingo got 9M users to maintain a"
+    },
+    {
+        "key": "Today we\u2019re launching AI Apps inCov"
+    },
+    {
+        "key": "What made you fast at 3 teams will "
+    },
+    {
+        "key": "This week I was asked about the con"
+    },
+    {
+        "key": "Do Goals Matter for Data Freelancer"
+    },
+    {
+        "key": "Recently, I discussed product featu"
+    },
+    {
+        "key": "MCP is the hottest thing under the "
+    },
+    {
+        "key": "Metrics can be a powerful foundatio"
+    },
+    {
+        "key": "We are thrilled to announce that Ub"
+    },
+    {
+        "key": "All companies try to take advantage"
+    },
+    {
+        "key": "More and more customers are turning"
+    },
+    {
+        "key": "I am going to share an unpopular op"
+    },
+    {
+        "key": "How would you improve grocery store"
+    },
+    {
+        "key": "Most attribution approaches don't w"
+    },
+    {
+        "key": "Give me 2 minutes, I will tell you7"
+    },
+    {
+        "key": "Walk and Talk. Thanks again, Josh, "
+    },
+    {
+        "key": "As a Server Administrator atVeeble "
+    },
+    {
+        "key": "Interviews terrify most people.This"
+    },
+    {
+        "key": "What consumer apps do push notifica"
+    },
+    {
+        "key": "Llama 4 is here and it\u2019s pretty imp"
+    },
+    {
+        "key": "It's an exciting week for us at Dat"
+    },
+    {
+        "key": "I use LLMs to check my gut feelings"
+    },
+    {
+        "key": "\ud83c\udf1f \ud835\udc13\ud835\udc21\ud835\udc1e \ud835\udc28\ud835\udc27\ud835\udc25\ud835\udc32 \ud835\udc30\ud835\udc1a\ud835\udc32 \ud835\udc2d\ud835\udc28 \ud835\udc1d\ud835\udc28 \ud835\udc20\ud835\udc2b\ud835\udc1e\ud835\udc1a\ud835\udc2d \ud835\udc30\ud835\udc28\ud835\udc2b\ud835\udc24 \ud835\udc22\ud835\udc2c "
+    },
+    {
+        "key": "Who would sign up for the M\u00f8nster S"
+    },
+    {
+        "key": "VCs who invested at 100x ARR in 202"
+    },
+    {
+        "key": "Thehashtag#Spine\u2019s Silent Curve: Un"
+    },
+    {
+        "key": "Digitalization is essential for sus"
+    },
+    {
+        "key": "One of the biggest mistakes I have "
+    },
+    {
+        "key": "OMG, this is crazy \u2014 Airbyte Cloud "
+    },
+    {
+        "key": "It was fun to play with the RFM app"
+    },
+    {
+        "key": "Google BigQuery is great for analyz"
+    },
+    {
+        "key": "\u201cEverything is Contextual.\u201d That\u2019s "
+    },
+    {
+        "key": "RoboHorse is here!!Kawasaki just re"
+    },
+    {
+        "key": "\ud835\udddc\ud835\uddfb\ud835\ude01\ud835\uddff\ud835\uddfc\ud835\uddf1\ud835\ude02\ud835\uddf0\ud835\ude01\ud835\uddf6\ud835\uddfc\ud835\uddfb \ud835\ude01\ud835\uddfc \ud835\uddd7\ud835\uddff\ud835\uddee\ud835\ude04\ud835\uddf6\ud835\uddfb\ud835\uddf4 \ud835\udde6\ud835\ude01\ud835\uddee\ud835\uddff\ud835\ude00 \ud83c\udf1fWe o"
+    },
+    {
+        "key": "R\u00b2 can be is a terrible metric.Let "
+    },
+    {
+        "key": "No more receipts please!"
+    },
+    {
+        "key": "Spotify converts 39% of its users t"
+    },
+    {
+        "key": "I predict that the need for data en"
+    },
+    {
+        "key": "\"The job of the future is not just "
+    },
+    {
+        "key": "Early in my career, I learned that "
+    },
+    {
+        "key": "\u0414\u043e\u0441\u0438\u0442\u044c \u0446\u0456\u043a\u0430\u0432\u0438\u0439 \u043f\u043e\u0441\u0442 \u043f\u0440\u043e \u043c\u0435\u0442\u0440\u0438\u043a\u0438. \u0427\u0430"
+    },
+    {
+        "key": "Tune in if you want to hear about h"
+    },
+    {
+        "key": "Subscription app funnels die after "
+    },
+    {
+        "key": "Vibe Coding is just the beginning. "
+    },
+    {
+        "key": "Designing a new event data design a"
+    },
+    {
+        "key": "My hopefully not controversial take"
+    },
+    {
+        "key": "Yesterday, I had the opportunity to"
+    },
+    {
+        "key": "\ud83d\udcddYour career should be a path of pr"
+    },
+    {
+        "key": "Back when I was at Booking.com, we "
+    },
+    {
+        "key": "Happy Friday Everyone!Moritz kicked"
+    },
+    {
+        "key": "Most of my posts are about digital "
+    },
+    {
+        "key": "9 years ago, my friend showed me a "
+    },
+    {
+        "key": "Lately, it feels like we're forgett"
+    },
+    {
+        "key": "Part 1 of the hashtag#CDPReboot ser"
+    },
+    {
+        "key": "Excel vs SQL vs Python (pandas):1\ufe0f\u20e3"
+    },
+    {
+        "key": "We all love RFM matrices for custom"
+    },
+    {
+        "key": "Your team can't code as they are dr"
+    },
+    {
+        "key": "1\ufe0f\u20e3 Data \u2260 Information2\ufe0f\u20e3 Informati"
+    },
+    {
+        "key": "After the first year in operation a"
+    },
+    {
+        "key": "Over the past two weeks I've been r"
+    },
+    {
+        "key": "Yann, like always, is right\u2014LLMs ar"
+    },
+    {
+        "key": "In one word:hashtag#Simple.Watch ou"
+    },
+    {
+        "key": "I was let go today. Fired. Laid off"
+    },
+    {
+        "key": "AI assistants and agents and coding"
+    },
+    {
+        "key": "Recently I was thinking about how t"
+    },
+    {
+        "key": "Power your business with rich, bari"
+    },
+    {
+        "key": "\u270d\ufe0f ColBERT and ColPali use multi-ve"
+    },
+    {
+        "key": "Can European analytics tools power "
+    },
+    {
+        "key": "Today, effectively doing \"strategy\""
+    },
+    {
+        "key": "60% of users decide whether to pay "
+    },
+    {
+        "key": "If you're looking to learn more abo"
+    },
+    {
+        "key": "If you're a top performing data eng"
+    },
+    {
+        "key": "Microsoft Cloud Solutions with Cray"
+    },
+    {
+        "key": "Whaaaat, are we launching today? \ud83d\ude80I"
+    },
+    {
+        "key": "Defining churn as \"hasn't bought fo"
     }
 ]

@@ -1,4 +1,5 @@
 config.yaml
 *.json
 *.json
+*.log
 pom.html
