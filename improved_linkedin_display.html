@@ -1,30 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Load More Example</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Feed</title>
     <style>
-                /*body {
-    font-family: Arial, sans-serif;
-    background-color: #f3f2ef;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    white-space: pre-line;
-
-}*/
-        #loadMoreBtn {
-            display: none;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            user-select: none;
-        }
-
         :root {
             --linkedin-blue: #0a66c2;
             --linkedin-light-blue: #e8f3ff;
@@ -48,9 +28,6 @@
             color: var(--linkedin-text);
             line-height: 1.5;
             padding: 20px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .linkedin-header {
@@ -77,7 +54,6 @@
         .feed-container {
             max-width: 550px;
             margin: 60px auto 20px;
-            
         }
 
         .post-card {
@@ -87,8 +63,6 @@
             margin-bottom: 16px;
             overflow: hidden;
             box-shadow: 0 0 0 1px var(--linkedin-card-shadow);
-            min-width: 550px;
-            user-select: none;
         }
 
         .embedded-post {
@@ -234,37 +208,62 @@
             }
         }
     </style>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-        <!-- LinkedIn-style header -->
-        <header class="linkedin-header">
-            <div class="logo">
-                <i class="fab fa-linkedin"></i>
-            </div>
-        </header>
-    
-        <!-- Main feed container -->
-        <div class="feed-container" id="feed-container">
-            <!-- Posts will be loaded here -->
+    <!-- LinkedIn-style header -->
+    <header class="linkedin-header">
+        <div class="logo">
+            <i class="fab fa-linkedin"></i>
         </div>
-    <button id="loadMoreBtn" onclick="loadMore()">Load More</button>
+    </header>
+
+    <!-- Main feed container -->
+    <div class="feed-container" id="feed-container">
+        <!-- Posts will be loaded here -->
+    </div>
+
+    <!-- Load more button -->
+    <button id="loadMoreBtn" class="load-more-btn">Load More</button>
+
+    <!-- Loading spinner (hidden by default) -->
+    <div class="loading-container" id="loading-container" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
 
     <script>
+        // Variables to track position
         let fileIndex = 0;
         let elemIndex = 0;
-        function createPostElement(post) {
-            const container = document.createElement('div');
-            container.className = 'post-card';
-            if (!post.embeding_url)
-            {
+
+        // Function to create a post element
+        function createEmbeddedPost(post) {
+            const postCard = document.createElement('div');
+            postCard.className = 'post-card';
+            
+
+             if (post.embeding_url) {
+                // Create an iframe to embed the LinkedIn post
+                
+                const iframe = document.createElement('iframe');
+                iframe.className = 'embedded-post';
+                iframe.src = `https://www.linkedin.com/embed/feed/update/${post.embeding_url}`
+                iframe.frameBorder = "0";
+                iframe.allowFullscreen = true;
+                
+                // Add the iframe to the post card
+                postCard.appendChild(iframe);
+            }
+            // Fallback to a simple post display if no embed or link
+            else {
                 const fallbackPost = document.createElement('div');
                 fallbackPost.className = 'fallback-post';
                 
                 fallbackPost.innerHTML = `
                     <div class="fallback-header">
-                        <a href = '${post.profile_link}'>
-                        <img src="${post.img_link || '/api/placeholder/48/48'}" alt="Profile" class="fallback-profile-image"></img>
-                        </a>
+                        <img src="${post.img_link || '/api/placeholder/48/48'}" alt="Profile" class="fallback-profile-image">
                         <div class="fallback-info">
                             <div class="fallback-name">${post.name || 'LinkedIn User'}</div>
                             <div class="fallback-description">${post.description || post.rank || ''}</div>
@@ -273,36 +272,31 @@
                     </div>
                     <div class="fallback-content">${post.post_text || 'No content available'}</div>
                 `;
-                if (post.post_link) {
+                
+                // Add visit post button if we have a link
+                if (post.profile_link) {
                     const visitBtn = document.createElement('a');
-                    visitBtn.href = post.post_link;
+                    visitBtn.href = post.profile_link;
                     visitBtn.className = 'visit-post-btn';
-                    visitBtn.textContent = 'Visit Post';
+                    visitBtn.textContent = 'Visit Profile';
                     visitBtn.target = '_blank';
                     fallbackPost.appendChild(visitBtn);
                 }
-
-                container.appendChild(fallbackPost);
-            }
-            else
-            {
-                /*container.innerHTML = `
-                <iframe src = 'https://www.linkedin.com/embed/feed/update/${post.embeding_url}' height = 1200 width = 540></iframe>
-                `;*/
-
-                const iframe = document.createElement('iframe');
-                iframe.className = 'embedded-post';
-                iframe.src = `https://www.linkedin.com/embed/feed/update/${post.embeding_url}`
-                iframe.frameBorder = "0";
-                iframe.allowFullscreen = true;
                 
-                // Add the iframe to the post card
-                container.appendChild(iframe);
+                postCard.appendChild(fallbackPost);
+                return postCard;
             }
-            return container;
         }
 
+        // Load data function
         function loadData() {
+            const loadingContainer = document.getElementById('loading-container');
+            const feedContainer = document.getElementById('feed-container');
+            
+            // Show loading spinner
+            loadingContainer.style.display = 'flex';
+            
+            // Fetch data from server
             fetch('/load_data', {
                 method: 'POST',
                 headers: {
@@ -312,33 +306,71 @@
             })
             .then(response => response.json())
             .then(result => {
-                const container = document.getElementById('feed-container');
+                // Hide loading spinner
+                loadingContainer.style.display = 'none';
+                
+                // Show message if no posts are found
+                if (result.data.length === 0 && fileIndex === 0 && elemIndex === 0) {
+                    const noPostsMessage = document.createElement('div');
+                    noPostsMessage.className = 'no-posts-message';
+                    noPostsMessage.innerHTML = `
+                        <h2>No posts found</h2>
+                        <p>There are no LinkedIn posts to display. Please run the scraper to collect posts first.</p>
+                    `;
+                    feedContainer.appendChild(noPostsMessage);
+                    
+                    // Hide load more button
+                    document.getElementById('loadMoreBtn').style.display = 'none';
+                    return;
+                }
+                
+                // Add posts to the feed
                 result.data.forEach(post => {
-                    const postElement = createPostElement(post);
-                    container.appendChild(postElement);
+                    const postElement = createEmbeddedPost(post);
+                    feedContainer.appendChild(postElement);
                 });
+                
+                // Update indices for next load
                 fileIndex = result.next;
-                elemIndex = result.elem_index
-                const btn = document.getElementById('loadMoreBtn');
-                btn.style.display = (fileIndex != -1) ? 'block' : 'none';
+                elemIndex = result.elem_index;
+                
+                // Show/hide load more button
+                const loadMoreBtn = document.getElementById('loadMoreBtn');
+                loadMoreBtn.style.display = (fileIndex !== -1) ? 'block' : 'none';
+            })
+            .catch(error => {
+                console.error('Error loading data:', error);
+                loadingContainer.style.display = 'none';
+                
+                // Show error message
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'no-posts-message';
+                errorMessage.innerHTML = `
+                    <h2>Error loading posts</h2>
+                    <p>There was a problem loading LinkedIn posts. Please check the server logs.</p>
+                `;
+                feedContainer.appendChild(errorMessage);
             });
         }
 
-        function loadMore() {
-            loadData();
-        }
+        // Load more button event handler
+        document.getElementById('loadMoreBtn').addEventListener('click', loadData);
 
-        window.onscroll = function() {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && fileIndex !=-1) {
-                const btn = document.getElementById('loadMoreBtn');
-                if (btn.style.display !== 'block') {
-                    btn.style.display = 'block';
-                }
+        // Initial load when page loads
+        document.addEventListener('DOMContentLoaded', loadData);
+
+        // Infinite scroll
+        window.addEventListener('scroll', () => {
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            
+            if (
+                window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
+                fileIndex !== -1 &&
+                loadMoreBtn.style.display !== 'none'
+            ) {
+                loadData();
             }
-        };
-
-        // Initial load
-        loadData();
+        });
     </script>
 </body>
 </html>

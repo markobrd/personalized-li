@@ -27,7 +27,7 @@ def load_data():
     posts_left_to_load = NUM_POSTS_PER_LOAD
     out = []
     while file_index < len(files) and file_index != -1:
-        file_path = os.path.join(DATA_FOLDER, files[file_index])
+        file_path = os.path.join(DATA_FOLDER, files[-file_index-1])
         if not file_path.endswith(".json"):
             file_index+=1
             continue

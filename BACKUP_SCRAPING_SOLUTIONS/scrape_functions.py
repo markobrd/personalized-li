@@ -270,6 +270,47 @@ def fetch_posts_person(driver, person, extension, saved_keys, blacklist = []):
     return posts, saved_keys
 
 
+def scrape_link_only(driver, aproved_posts, xpath):
+    links = []
+    #driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    #time.sleep(1)
+    elems = driver.find_elements(By.CLASS_NAME, "scaffold-finite-scroll__content")[0]
+    elems = elems.find_elements(By.XPATH, xpath)
+    print(len(elems))
+    for post in aproved_posts:
+        index = post['id']
+        elem3 = elems[index].find_elements(By.CLASS_NAME, 'artdeco-dropdown')
+        if len(elem3) == 0:
+            continue
+        else:
+            elem3 = elem3[0]
+        elem3 = elem3.find_elements(By.XPATH, './button[1]')
+        if(len(elem3) > 0):
+            driver.execute_script("arguments[0].click();", elem3[0])
+    
+    time.sleep(1)
+    driver.execute_script("window.focus();")
+    for post in aproved_posts:
+        index = post['id']
+        elem3 = elems[index].find_elements(By.CLASS_NAME, 'artdeco-dropdown')
+        if len(elem3) == 0:
+            continue
+        else:
+            elem3 = elem3[0]
+        elem3 = elem3.find_elements(By.XPATH, './div[1]/div[1]/ul[1]/li[2]/div[1]')
+        print(len(elem3))
+        if len(elem3) > 0:
+            driver.execute_script("arguments[0].click();", elem3[0])
+            link = driver.find_element(By.CLASS_NAME, 'artdeco-toast-item__cta')
+            p = link.get_attribute("href")
+            post['post_link'] = p
+            links.append(p)
+
+    print(links)
+    return links
+
+
+
 def generate_html_alt(approved_posts, driver, xpath):
     today = datetime.datetime.now().strftime("%Y-%m-%d")
     html_content = "<br><br>"
@@ -323,49 +364,5 @@ def generate_html_alt(approved_posts, driver, xpath):
         if esc:
             esc.click()
     return html_content
-
-
-def scrape_link_only(driver, aproved_posts, xpath):
-    links = []
-    #driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    #time.sleep(1)
-    elems = driver.find_elements(By.CLASS_NAME, "scaffold-finite-scroll__content")[0]
-    elems = elems.find_elements(By.XPATH, xpath)
-    print(len(elems))
-    for post in aproved_posts:
-        index = post['id']
-        elem3 = elems[index].find_elements(By.CLASS_NAME, 'artdeco-dropdown')
-        if len(elem3) == 0:
-            continue
-        else:
-            elem3 = elem3[0]
-        elem3 = elem3.find_elements(By.XPATH, './button[1]')
-        if(len(elem3) > 0):
-            driver.execute_script("arguments[0].click();", elem3[0])
-    
-    time.sleep(1)
-    driver.execute_script("window.focus();")
-    for post in aproved_posts:
-        index = post['id']
-        elem3 = elems[index].find_elements(By.CLASS_NAME, 'artdeco-dropdown')
-        if len(elem3) == 0:
-            continue
-        else:
-            elem3 = elem3[0]
-        elem3 = elem3.find_elements(By.XPATH, './div[1]/div[1]/ul[1]/li[2]/div[1]')
-        print(len(elem3))
-        if len(elem3) > 0:
-            driver.execute_script("arguments[0].click();", elem3[0])
-            link = driver.find_element(By.CLASS_NAME, 'artdeco-toast-item__cta')
-            p = link.get_attribute("href")
-            post['post_link'] = p
-            links.append(p)
-
-    print(links)
-    return links
-
-
-
-
 
 

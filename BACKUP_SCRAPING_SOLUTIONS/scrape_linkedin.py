@@ -9,8 +9,11 @@ import asyncio
 import threading
 from html_components import *
 import subprocess
-import pyperclip
-from webdriver_manager.chrome import ChromeDriverManager
+from concurrent.futures import ThreadPoolExecutor
+from selenium_driverless import webdriver
+from selenium_driverless.types.by import By
+from asynciolimiter import Limiter
+import datetime
 
 # Load the config
 with open('config.yaml') as config_file:
@@ -35,8 +38,8 @@ def setup_driver(incognito = False):
     # service = Service(CHROMEDRIVER_PATH)
     if incognito:
         chrome_options.add_argument("--incognito")
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+
+    driver = webdriver.Chrome(options=chrome_options)
     return driver
 
 def save_cookies(driver):
@@ -157,73 +160,52 @@ def start_flask_server():
     subprocess.Popen(['python', 'flask_server.py'])
     print("Flask server started.")    
     
-def run_for_account(incognito):
-    print(incognito)
-    if incognito=="incognito1":
-        driver = setup_driver(False)
-    else:
-        driver = setup_driver(True)
-    # Do things with this account
-    if not check_login_status(driver):
-            login(driver)
-
-    print("logged in")
-    driver.quit()
+async def run_for_account(url):
+    
+    options = webdriver.ChromeOptions()
+    #options.add_argument("--headless=new")
+    async with webdriver.Chrome(options=options) as driver:
+        await driver.get(url)
+        await asyncio.sleep(10.0)
+        # Perform your scraping tasks here
+        print(f"Opened: {url}")
 
 async def main():
     print(datetime.datetime.now())
     driver = setup_driver(False)
-    #driver2 = setup_driver(True)
-
     try:
+
 
         if not check_login_status(driver):
             login(driver)
-        """incognito1=True
-        incognito2=False
-        threading.Thread(target=run_for_account, args=(("incognito1"),) , daemon=True).start()
-        time.sleep(2)
-        threading.Thread(target=run_for_account, args=(("incognito2"),), daemon=True).start()
-        time.sleep(10)"""
 
         saved_keys = load_visited_posts()
-        #html = html_top
+
         blacklist = config["blacklist"]
         posts_all, saved_keys = fetch_posts_person(driver, "nishkambatta", "all", saved_keys, blacklist)
         approved_posts_all = await process_posts(posts_all[:5])
-        #html += generate_html_alt(approved_posts_all, driver, "./ul[1]/li")
         link = scrape_link_only(driver, approved_posts_all, "./ul[1]/li")
 
         posts_comments, saved_keys = fetch_posts_person(driver, "nishkambatta", "comments", saved_keys, blacklist)
         approved_posts_comments = await process_posts(posts_comments[:10])
         links = scrape_link_only(driver, approved_posts_comments, "./ul[1]/li")
-        #html += generate_html_alt(approved_posts_comments, driver, "./ul[1]/li")
-
 
         posts_reactions, saved_keys = fetch_posts_person(driver, "nishkambatta", "reactions", saved_keys, blacklist)
         approved_posts_reactions = await process_posts(posts_reactions[:10])
         links = scrape_link_only(driver, approved_posts_reactions, "./ul[1]/li")
-        #html += generate_html_alt(approved_posts_reactions, driver, "./ul[1]/li")
-        #print(posts_comments)
 
         posts_feed, saved_keys = fetch_posts(driver, saved_keys, blacklist)
         approved_posts_feed = await process_posts(posts_feed)
         links = scrape_link_only(driver, approved_posts_feed, "//*[@data-finite-scroll-hotkey-item]")
-        #html += generate_html_alt(approved_posts_feed, driver, "//*[@data-finite-scroll-hotkey-item]")
 
-        #new_posts = save_to_json(approved_posts_feed+approved_posts_all+approved_posts_comments+approved_posts_reactions)
+        new_posts = save_to_json(approved_posts_feed+approved_posts_all+approved_posts_comments+approved_posts_reactions)
 
         save_visited_posts(saved_keys)
 
-
-        #html += html_bottom
-
-        #save_html(html)
-
         # Check if the tab is closed
     finally:
-        #driver.quit()
         #start_flask_server()
+        #await driver.close()
         print(datetime.datetime.now())
         print("finished...")
 
