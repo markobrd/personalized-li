@@ -17,22 +17,22 @@ with open('config.yaml') as config_file:
 # Configuration
 USERNAME = config['credentials']['username']
 PASSWORD = config['credentials']['password']
-LOGIN_URL = config['urls']['login_url']
-FETCH_URL = config['urls']['fetch_url']
 TIMEOUT = config['settings']['timeout']
 APPROVED_TOPICS = config['topics']  # Replace with your approved topics
 STALKLIST = config['stalklist']
+PORT = 5000
 
 #LOGIN AND COOKIES SETUP
 
 async def login_and_get_cookies(page, email, password):
     await page.goto('https://www.linkedin.com/login', timeout=60000)
-    print("Im doing something")
-    elem = page.locator("#username")
-    await elem.fill(email)
-    elem = page.locator("#password")
-    await elem.fill(password)
-    await page.click('.btn__primary--large.from__button--floating')
+    await load_cookies(page)
+    if not page.url.startswith('https://www.linkedin.com/feed'):
+        elem = page.locator("#username")
+        await elem.fill(email)
+        elem = page.locator("#password")
+        await elem.fill(password)
+        await page.click('.btn__primary--large.from__button--floating')
 
     #await page.wait_for_load_state('networkidle')
     cookies = await page.context.cookies()
@@ -116,7 +116,7 @@ def start_flask_server():
 
 #SCRAPING
 
-rate_limiter = Limiter(1/4)
+rate_limiter = Limiter(1/3)
 async def scrape_feed(browser, saved_keys, blacklist):
     context = await browser.new_context()
     page = await context.new_page()
@@ -138,6 +138,8 @@ async def scrape_person(browser, person, extension, saved_keys, blacklist):
     await rate_limiter.wait()
     context = await browser.new_context()
     await load_cookies(context)
+
+
     page = await context.new_page()
     url = f'https://www.linkedin.com/in/{person}/recent-activity/{extension}'
     await page.goto(url, timeout=60000)
@@ -156,8 +158,10 @@ async def main():
     async with async_playwright() as p:
         print(datetime.datetime.now())
         browser = await p.chromium.launch(headless=False)
-        posts, saved_keys = await scrape_feed(browser, saved_keys, blacklist)
-
+        #posts, saved_keys = await scrape_feed(browser, saved_keys, blacklist)
+        
+        context = await browser.new_context()
+        page = await context.new_page() 
         tasks = []
 
         for person in STALKLIST:
@@ -173,7 +177,7 @@ async def main():
                     out.append(post)
                     visited.add(post['data_id'])
 
-        out = posts + out
+        #out = posts + out
         out = await process_posts(out)
         save_to_json(out)
         await browser.close()
