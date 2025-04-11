@@ -62,7 +62,7 @@ def save_to_json(posts):
         with open(file_name, 'r') as file:
             old_posts = json.load(file)
     with open(file_name, 'w') as file:
-        json.dump(old_posts+posts, file, indent=4)
+        json.dump(posts+old_posts, file, indent=4)
     
     return posts
 
