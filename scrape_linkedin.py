@@ -2,7 +2,7 @@ import asyncio
 import json
 from playwright.async_api import async_playwright
 from asynciolimiter import Limiter
-from scrape_functions1 import fetch_posts, fetch_posts_person, scrape_link_only
+from scrape_functions import fetch_posts, fetch_posts_person, scrape_link_only
 import datetime
 import os
 import yaml
@@ -21,7 +21,7 @@ LOGIN_URL = config['urls']['login_url']
 FETCH_URL = config['urls']['fetch_url']
 TIMEOUT = config['settings']['timeout']
 APPROVED_TOPICS = config['topics']  # Replace with your approved topics
-PORT = 5000
+STALKLIST = config['stalklist']
 
 #LOGIN AND COOKIES SETUP
 
@@ -37,13 +37,13 @@ async def login_and_get_cookies(page, email, password):
     #await page.wait_for_load_state('networkidle')
     cookies = await page.context.cookies()
     print("Got cookies")
-    with open('cookies.json', 'w') as f:
+    with open(f'cookies{USERNAME}.json', 'w') as f:
         json.dump(cookies, f)
     print("Logged in and saved cookies.")
 
 async def load_cookies(context):
     try:
-        with open('cookies.json', 'r') as f:
+        with open(f'cookies{USERNAME}.json', 'r') as f:
             cookies = json.load(f)
         await context.add_cookies(cookies)
         print("Loaded cookies.")
@@ -149,25 +149,26 @@ async def scrape_person(browser, person, extension, saved_keys, blacklist):
 async def main():
     #saved_keys = load_visited_posts()
     saved_keys = set()
-    blacklist = ['someuser1', 'someuser2']
-    extensions = ["all","comments","reactions"]
+    blacklist = config['blacklist']
+
+    extensions = config['extensions']
+
     async with async_playwright() as p:
         print(datetime.datetime.now())
         browser = await p.chromium.launch(headless=False)
-
-        # EXAMPLE 1: Scrape your own feed
         posts, saved_keys = await scrape_feed(browser, saved_keys, blacklist)
-        #print(posts)
 
-        tasks = [scrape_person(browser, 'nishkambatta', extension, saved_keys, blacklist) for extension in extensions]
-        tasks += [scrape_person(browser, 'máriorebelo', extension, saved_keys, blacklist) for extension in extensions]
+        tasks = []
+
+        for person in STALKLIST:
+            tasks += [scrape_person(browser, person, extension, saved_keys, blacklist) for extension in extensions]
         results = await asyncio.gather(*tasks)
         out  = []
         visited = set()
 
         for result in results:
             for post in result['posts']:
-                #print(post)
+
                 if (post['data_id']) and (not post['data_id'] in visited):
                     out.append(post)
                     visited.add(post['data_id'])
