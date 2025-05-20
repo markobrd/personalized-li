@@ -250,6 +250,14 @@
     <button id="loadMoreBtn" onclick="loadMore()">Load More</button>
 
     <script>
+
+        const message = {{message| tojson | safe}};
+        console.log(message);
+        const user = message.user;
+        const id = message.id;
+        console.log(user);
+        console.log(id);
+
         let fileIndex = 0;
         let elemIndex = 0;
         function createPostElement(post) {
@@ -302,13 +310,13 @@
             return container;
         }
 
-        function loadData() {
-            fetch('/load_data', {
+        async function loadData() {
+            await fetch('/load_data', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ file_index: fileIndex, elem_index: elemIndex })
+                body: JSON.stringify({user:user, id:id, file_index: fileIndex, elem_index: elemIndex })
             })
             .then(response => response.json())
             .then(result => {
@@ -324,8 +332,8 @@
             });
         }
 
-        function loadMore() {
-            loadData();
+        async function loadMore() {
+           await loadData();
         }
 
         window.onscroll = function() {
@@ -337,8 +345,11 @@
             }
         };
 
-        // Initial load
-        loadData();
+        (async function()
+        {
+          await loadData();
+        })();
     </script>
+
 </body>
 </html>
