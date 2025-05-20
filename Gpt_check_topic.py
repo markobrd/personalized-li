@@ -1,13 +1,14 @@
 import openai
 import yaml
 
+
 with open('config.yaml') as config_file:
     config = yaml.safe_load(config_file)
 
 client = openai.AsyncOpenAI(api_key=config['API_KEY'])
 
 
-async def check_topic(post, id):
+async def check_topic(post, id, topics):
 
     prompt = f"Is the following post relevant to any of these topics: {config['topics']}? Answer only True or False.\n\nPost: {post['post_text']}"
 
@@ -17,7 +18,7 @@ async def check_topic(post, id):
         messages=messages,
         max_tokens=10
     )
-    print(response.choices[0].message.content.lower() +"\n\n")
+    print(response.choices[0].message.content.lower() + " \n\n ")
     # Simplified example; adjust based on actual API response
     if "true" in response.choices[0].message.content.lower():
         return post
